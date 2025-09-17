@@ -1,0 +1,49 @@
+{
+  "name": "fioc-server-utils",
+  "version": "1.0.0",
+  "type": "module",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "keywords": [
+    "react",
+    "server actions",
+    "nextjs",
+    "dependency injection",
+    "functional dependency injection",
+    "inversion of control",
+    "di container",
+    "typescript",
+    "ioc"
+  ],
+  "description": "A lightweight and type-safe utility library for fioc to handle some features of react SSR.",
+  "author": "kolostring <yoerodriguezjunior@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kolostring/fioc-react-ssr.git"
+  },
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "fioc": "^1.2.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.33.0",
+    "@types/node": "^24.3.1",
+    "eslint": "^9.33.0",
+    "globals": "^16.3.0",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.39.1",
+    "vitest": "^3.2.4"
+  }
+}

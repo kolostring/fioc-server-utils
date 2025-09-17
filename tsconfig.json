@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "outDir": "dist",
+    "jsx": "react-jsx",
+    "lib": ["dom"],
+    "moduleResolution": "node",
+    "target": "es2020"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["src/__tests__"]
+}
