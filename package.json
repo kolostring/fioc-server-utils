@@ -24,7 +24,7 @@
     "typescript",
     "ioc"
   ],
-  "description": "A lightweight and type-safe utility library for fioc to handle some features of react SSR.",
+  "description": "A lightweight and type-safe utility library for fioc to handle React server features.",
   "author": "kolostring <yoerodriguezjunior@gmail.com>",
   "repository": {
     "type": "git",
