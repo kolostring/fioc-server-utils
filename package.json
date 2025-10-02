@@ -35,7 +35,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "fioc": "^1.2.4"
+    "fioc": "^1.4.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",

@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       fioc:
-        specifier: ^1.2.4
-        version: 1.2.4
+        specifier: ^1.4.0
+        version: 1.4.0
     devDependencies:
       '@eslint/js':
         specifier: ^9.33.0
@@ -654,8 +654,8 @@ packages:
     resolution: {integrity: sha512-78/PXT1wlLLDgTzDs7sjq9hzz0vXD+zn+7wypEe4fXQxCmdmqfGsEPQxmiCSQI3ajFV91bVSsvNtrJRiW6nGng==}
     engines: {node: '>=10'}
 
-  fioc@1.2.4:
-    resolution: {integrity: sha512-wsUC+pYNi9fJ2DeUiZjkWe6sxrgCfa2wghx+HCo2H+yeEHQ6EY9pJYtNlEpRUGblt0NU+TxK7tu67nNiEbtG7w==}
+  fioc@1.4.0:
+    resolution: {integrity: sha512-uwPp18kVhd1QPKgE5LfHClf154PaTu5q8PrC9al3F95iiMUUNCIwupsnjWu+zrZmlH+dA7LvgRbO8CFSTtEtpw==}
 
   flat-cache@4.0.1:
     resolution: {integrity: sha512-f7ccFPK3SXFHpx15UIGyRJ/FJQctuKZ0zVuN3frBo4HnK3cay9VEW0R6yPYFHC0AgqhukPzKjq22t5DmAyqGyw==}
@@ -1622,7 +1622,7 @@ snapshots:
       locate-path: 6.0.0
       path-exists: 4.0.0
 
-  fioc@1.2.4:
+  fioc@1.4.0:
     dependencies:
       immer: 10.1.3
 
