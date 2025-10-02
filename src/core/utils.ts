@@ -16,8 +16,10 @@ import { createDIToken, DIContainer, DIFactory, DIToken } from "fioc";
  * export const iocServerHandler = buildIoCServerHandler(serverContainer);
  * ```
  */
-export function buildIoCServerHandler<T>(serverContainer: DIContainer<T>) {
-  return async (tokenKey: string, ...params: any[]) => {
+export function buildIoCServerHandler<T extends DIContainer<any>>(
+  serverContainer: DIContainer<T>
+) {
+  return async (tokenKey: string, ...params: unknown[]) => {
     const token = createDIToken().as(tokenKey);
 
     const resolved = serverContainer.resolve(token) as (
@@ -67,7 +69,7 @@ export function createServerControllerProxy<
     dependencies: [IoCServerHandlerToken],
     factory:
       (iocServerAction) =>
-      async (...args) => {
+      async (...args: unknown[]) => {
         if (typeof window !== "undefined") {
           return await iocServerAction(
             Symbol.keyFor(token) ?? "UNDEFINED",
