@@ -96,7 +96,7 @@ import { iocServerHandler } from "../server/actions";
 
 const clientContainer = buildDIContainer()
   .register(IoCServerHandlerToken, iocServerHandler)
-  .registerConsumer(createServerControllerProxy(CreateUserUseCaseToken))
+  .registerFactory(createServerControllerProxy(CreateUserUseCaseToken))
   .getResult();
 
 export const DIManager = buildDIManager()
