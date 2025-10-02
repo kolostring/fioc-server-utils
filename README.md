@@ -1,22 +1,31 @@
 # FIOC-SERVER-UTILS
 
-FIOC-server-utils (Functional Inversion Of Control - server utilities) is a lightweight utility library for [FIOC](https://www.npmjs.com/package/fioc) and [FIOC React](https://www.npmjs.com/package/fioc-react) to embrace React's/NextJS' Server features. It simplifies the management of server action dependencies in your React components.
-
-## The problem it solves
-
-FIOC-server-utils is oriented towards React/NextJS applications that mix server and client environments and need to be decoupled.
-For example, you might need to call some server controllers (as Server Actions) from a client component.
-
-Tho, the client component doesn't actually need to know about the controllers environment (server, client, or both), therefore, if you need to isolate the component for testing purposes, you can easily mock the controller.
+FIOC-server-utils (Functional Inversion Of Control - Server Utilities) is a lightweight utility library for [FIOC](https://www.npmjs.com/package/fioc) and [FIOC React](https://www.npmjs.com/package/fioc-react) that seamlessly integrates with React Server Components and Server Actions. It provides a **type-safe** bridge between client components and server-side dependencies, enabling clean architecture in modern React applications.
 
 ## Features
 
-- **Server Actions Dependency Injection**: Define dependencies as server dependencies and resolve them in your client components.
-- **Lightweight**: Only two simple functions.
+- 🚀 **Server Action Integration**: Seamless integration with React Server Components and Actions
+- 🔒 **Type-safe by Design**: Full TypeScript support with compile-time dependency validation
+- 🎯 **Zero Runtime Overhead**: Minimal wrapper around Server Actions
+- 🛡️ **Environment Validation**: Catches improper server/client usage at runtime
+- 🏗️ **Clean Architecture**: Facilitates proper separation of client and server concerns
+- 🔄 **Transparent Proxies**: Server dependencies appear as local to client code
+- 🧪 **Testing Ready**: Easy mocking of server dependencies
+- 🎮 **Framework Agnostic**: Works with any React-based framework supporting Server Actions
+
+[Jump to Basic Usage →](#basic-usage)
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Basic Usage](#basic-usage)
+  - [Server Container Setup](#server-container-setup)
+  - [Server Handler Creation](#server-handler-creation)
+  - [Client Integration](#client-integration)
 
 ## Installation
 
-Install the library using npm, pnpm or yarn:
+Install using your preferred package manager:
 
 ```bash
 npm install fioc-server-utils
@@ -30,90 +39,136 @@ pnpm install fioc-server-utils
 yarn add fioc-server-utils
 ```
 
-### 1. Creating server dependencies container
+## Basic Usage
 
-First of all, create a server dependencies container. These dependencies will be called in the server. If you don't know the procedure of creating a DI Container, please refer to [FIOC](https://www.npmjs.com/package/fioc) documentation.
+### Server Container Setup
+
+First, set up your server-side dependency container:
 
 ```ts
-import { UserRepositoryToken } from "./repositories/userRepository";
-import { HTTPUserRepository } from "./repositories/httpUserRepository";
-
+// app/server/container.ts
+import { buildDIContainer } from "fioc";
 import {
-  UseCaseCreateUserFactory,
-  UseCaseCreateUserToken,
+  UserRepository,
+  UserRepositoryToken,
+} from "./repositories/userRepository";
+import {
+  CreateUserUseCase,
+  CreateUserUseCaseToken,
 } from "./useCases/createUser";
 
-import {
-  ControllerCreateUserFactory,
-  ControllerCreateUserToken,
-} from "./controllers/createUser";
-
-/**
- * In this example, the creation of an user is a delicate process with some critical business
- * rules that can't be exposed to the client, therefore, it must run in the server.
- *
- *
- * The process starts when the data reaches the Controller to be validated and adapted, then
- * the Use Case is executed, which will create the user in the Repository.
- *
- * When the process finishes, the Controller responds to the client with the result.
- */
-
 const serverContainer = buildDIContainer()
-  .register(UserRepositoryToken, HTTPUserRepository)
-  .registerConsumer({
-    token: UseCaseCreateUserToken,
-    factory: UseCaseCreateUserFactory,
+  .register(UserRepositoryToken, new UserRepository())
+  .registerFactory({
+    token: CreateUserUseCaseToken,
     dependencies: [UserRepositoryToken],
-  })
-  .registerConsumer({
-    token: ControllerCreateUserToken,
-    factory: ControllerCreateUserFactory,
-    dependencies: [UseCaseCreateUserToken],
+    factory: (repo) => new CreateUserUseCase(repo),
   })
   .getResult();
 ```
 
-### 2. Configuring IOC Handler
+### Server Handler Creation
 
-Now you need to configure a server action that will work as a Handler for all the Server Dependencies. This is done by exporting a constant with the result of the function `buildIOCServerHandler`. It requires the container created in the previous step.
+Create a Server Action to handle dependency resolution:
 
-```tsx
-"use server"; //Don't forget to add this line
-import { serverContainer } from "@/ioc/serverContainer";
+```ts
+// app/server/actions.ts
+"use server";
+import { buildIoCServerHandler } from "fioc-server-utils";
+import { serverContainer } from "./container";
 
-export const iocServerHandler = buildIOCServerHandler(serverContainer);
+export const iocServerHandler = buildIoCServerHandler(serverContainer);
 ```
 
-### 3. Configure the client container
+### Client Integration
 
-First, create the client container you will call the controllers from and register the previously defined server action with the `IOCServerHandlerToken` token.
+Set up your client-side container:
 
-Now you need to provide to the client container a **proxy** to the controllers of the server. These "proxies" will wrapp your controllers in a function that will call the previously configured server action with the function parameters.
-
-The utility function `serverConsumerProxy` will create a proxy for you, just provide the token of the controller you want to proxy.
-
-```tsx
-import { buildDIContainer } from "fioc";
-import { IOCServerHandlerToken, serverConsumerProxy } from "fioc-server-utils";
-import { iocServerHandler } from "@/ioc/iocServerHandler";
-
-import { ControllerCreateUserToken } from "./controllers/createUser";
+```ts
+// app/client/container.ts
+import { buildDIContainer, buildDIManager } from "fioc";
+import {
+  IoCServerHandlerToken,
+  createServerControllerProxy,
+} from "fioc-server-utils";
+import { CreateUserUseCaseToken } from "../server/useCases/createUser";
+import { iocServerHandler } from "../server/actions";
 
 const clientContainer = buildDIContainer()
-  .register(IOCServerHandlerToken, iocServerHandler)
-  .registerConsumer(serverConsumerProxy(ControllerCreateUserToken))
+  .register(IoCServerHandlerToken, iocServerHandler)
+  .registerConsumer(createServerControllerProxy(CreateUserUseCaseToken))
   .getResult();
+
+export const DIManager = buildDIManager()
+  .registerContainer(clientContainer, "default")
+  .getResult()
+  .setDefaultContainer("default");
 ```
 
-## License
+Wrap your app with FIOC-React's provider:
 
-This library is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+```tsx
+// app/layout.tsx
+import { DependenciesProvider } from "fioc-react";
+import { DIManager } from "./client/container";
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html>
+      <body>
+        <DependenciesProvider manager={DIManager}>
+          {children}
+        </DependenciesProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+Use in components with the `useDependencies` hook:
+
+```tsx
+// app/components/CreateUser.tsx
+"use client";
+import { useDependencies } from "fioc-react";
+import { CreateUserUseCaseToken } from "../server/useCases/createUser";
+
+export function CreateUserForm() {
+  const { resolve } = useDependencies();
+  const createUser = resolve(CreateUserUseCaseToken);
+
+  const handleSubmit = async (formData: FormData) => {
+    try {
+      await createUser({
+        name: formData.get("name") as string,
+        email: formData.get("email") as string,
+      });
+    } catch (err) {
+      // Handle errors
+      console.error(err);
+    }
+  };
+
+  return <form action={handleSubmit}>...</form>;
+}
+```
+
+## Best Practices
+
+- Keep business logic in server-side use cases
+- Use controllers for better scalability if at any point you will use another server framework
+- Keep server and client containers separate
 
 ## Contributing
 
-Contributions are welcome! Feel free to open issues or submit pull requests on [GitHub](https://github.com/kolostring/fioc-react).
+Contributions are welcome! Feel free to open issues or submit pull requests on [GitHub](https://github.com/kolostring/fioc-server-utils).
 
-## Acknowledgments
+## License
 
-Special thanks to the open-source community for inspiring this project.
+MIT License - see the [LICENSE](./LICENSE) file for details.
+
+[Back to Top ↑](#fioc-server-utils)
