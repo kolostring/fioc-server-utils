@@ -5,17 +5,18 @@ import { createDIToken, DIContainer, DIFactory, DIToken } from "fioc";
  * The function it returns must be exported as a server action and acts as dependency
  * to serverConsumerProxies.
  *
- * @param serverContainer
- * @returns a function that will resolve the provided token in the server container
+ * @param serverContainer - The DI container that holds server-side dependencies
+ * @returns A server action function that resolves tokens within the server container
+ * @throws {Error} If the resolved token is not a function
  * @example
  * ```ts
- * "use server"; //Don't forget to add this line
- * import { serverContainer } from "@/ioc/serverContainer"; //Import the container that must run in the server
+ * "use server"
+ * import { serverContainer } from "@/ioc/serverContainer";
  *
- * export const iocServerHandler = buildIOCServerHandler(serverContainer); //Export the server action
+ * export const iocServerHandler = buildIoCServerHandler(serverContainer);
  * ```
  */
-export function buildIOCServerHandler<T>(serverContainer: DIContainer<T>) {
+export function buildIoCServerHandler<T>(serverContainer: DIContainer<T>) {
   return async (tokenKey: string, ...params: any[]) => {
     const token = createDIToken().as(tokenKey);
 
@@ -25,7 +26,7 @@ export function buildIOCServerHandler<T>(serverContainer: DIContainer<T>) {
 
     if (typeof resolved !== "function") {
       throw new Error(
-        `IOCServerHandler: The provided token Symbol(${tokenKey}) does not resolve to a function.`
+        `IoCServerHandler: The provided token Symbol(${tokenKey}) does not resolve to a function.`
       );
     }
     return await resolved(...params);
@@ -33,40 +34,37 @@ export function buildIOCServerHandler<T>(serverContainer: DIContainer<T>) {
 }
 
 /**
- * Token that will be used to resolve the IOC Server Action Handler in the client.
+ * Token used to resolve the IoC Server Action Handler in the client container.
+ * This token must be registered with the server action created by buildIoCServerHandler.
  */
-export const IOCServerHandlerToken = createDIToken<
-  ReturnType<typeof buildIOCServerHandler>
->().as("IOCServerHandlerToken");
+export const IoCServerHandlerToken = createDIToken<
+  ReturnType<typeof buildIoCServerHandler>
+>().as("IoCServerHandlerToken");
 
 /**
- * Creates a DIFactory that will allow to run the provided controller in the server.
- * When resolved in the client, returns a function with the same parameters and return type as the
- * controller, so its easy to migrate from client to server and vice versa.
+ * Creates a DIFactory that proxies server-side controller calls.
+ * The proxy maintains the same interface as the original controller but executes it on the server
+ * through a server action.
  *
- * @param token The token of the controller you want to proxy
- * @returns A DIFactory that will proxy the controller in the server
+ * @param token - The token of the server-side controller to proxy
+ * @returns A DIFactory that creates a proxy for the server-side controller
+ * @throws {Error} If called directly on the server
  * @example
  * ```ts
- * import { buildDIContainer } from "fioc";
- * import { IOCServerHandlerToken, serverFactoryProxy } from "fioc-server-utils";
- * import { iocServerHandler } from "@/ioc/iocServerHandler"; //Import the server action for ioc server handling
- * import { ControllerCreateUserToken } from "./controllers/createUser"; //Import the controller Token(only) you want to proxy
- *
  * const clientContainer = buildDIContainer()
- *   .register(IOCServerHandlerToken, iocServerHandler) //Register the server action
- *   .registerConsumer(serverFactoryProxy(ControllerCreateUserToken)) //Register the proxy
- *   .getResult(); //Get the result of the container
+ *   .register(IoCServerHandlerToken, iocServerHandler)
+ *   .registerConsumer(createServerControllerProxy(UserControllerToken))
+ *   .getResult();
  * ```
  */
-export function serverFactoryProxy<
+export function createServerControllerProxy<
   T extends DIToken<Val, Key>,
   Val,
   Key extends string
->(token: T): DIFactory<Key, [ReturnType<typeof buildIOCServerHandler>]> {
+>(token: T): DIFactory<Key, [ReturnType<typeof buildIoCServerHandler>]> {
   return {
     token,
-    dependencies: [IOCServerHandlerToken],
+    dependencies: [IoCServerHandlerToken],
     factory:
       (iocServerAction) =>
       async (...args) => {
@@ -78,7 +76,7 @@ export function serverFactoryProxy<
         }
 
         throw new Error(
-          `ServerConsumerProxy called in the server with token (${Symbol.keyFor(
+          `Server controller proxy called on the server with token (${Symbol.keyFor(
             token
           )})`
         );
