@@ -1,4 +1,4 @@
-import { createDIToken, DIContainer, DIFactory, DIToken } from "fioc";
+import { createDIToken, DIContainer, DIFactory, DIToken } from "@fioc/core";
 
 /**
  * Builds a function that will resolve the provided tokens in a server container.

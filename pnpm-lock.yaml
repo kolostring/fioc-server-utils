@@ -8,9 +8,9 @@ importers:
 
   .:
     dependencies:
-      fioc:
-        specifier: ^1.4.0
-        version: 1.4.0
+      '@fioc/core':
+        specifier: ^1.5.1
+        version: 1.5.1
     devDependencies:
       '@eslint/js':
         specifier: ^9.33.0
@@ -232,6 +232,9 @@ packages:
   '@eslint/plugin-kit@0.3.5':
     resolution: {integrity: sha512-Z5kJ+wU3oA7MMIqVR9tyZRtjYPr4OC004Q4Rw7pgOKUOKkJfZ3O24nz3WYfGRpMDNmcOi3TwQOmgm7B7Tpii0w==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@fioc/core@1.5.1':
+    resolution: {integrity: sha512-VOvvSzjPDplPiLMAdLsHt04EIA89JuiTGw8d01aHWZYhNK7NyVAHivZgSdK7lbn7mpbHIT4lg/Bzsz5UW3If8Q==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -719,9 +722,6 @@ packages:
   find-up@5.0.0:
     resolution: {integrity: sha512-78/PXT1wlLLDgTzDs7sjq9hzz0vXD+zn+7wypEe4fXQxCmdmqfGsEPQxmiCSQI3ajFV91bVSsvNtrJRiW6nGng==}
     engines: {node: '>=10'}
-
-  fioc@1.4.0:
-    resolution: {integrity: sha512-uwPp18kVhd1QPKgE5LfHClf154PaTu5q8PrC9al3F95iiMUUNCIwupsnjWu+zrZmlH+dA7LvgRbO8CFSTtEtpw==}
 
   fix-dts-default-cjs-exports@1.0.1:
     resolution: {integrity: sha512-pVIECanWFC61Hzl2+oOCtoJ3F17kglZC/6N94eRWycFgBH35hHx0Li604ZIzhseh97mf2p0cv7vVrOZGoqhlEg==}
@@ -1409,6 +1409,10 @@ snapshots:
       '@eslint/core': 0.15.2
       levn: 0.4.1
 
+  '@fioc/core@1.5.1':
+    dependencies:
+      immer: 10.1.3
+
   '@humanfs/core@0.19.1': {}
 
   '@humanfs/node@0.16.7':
@@ -1916,10 +1920,6 @@ snapshots:
     dependencies:
       locate-path: 6.0.0
       path-exists: 4.0.0
-
-  fioc@1.4.0:
-    dependencies:
-      immer: 10.1.3
 
   fix-dts-default-cjs-exports@1.0.1:
     dependencies:
